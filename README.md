@@ -3,7 +3,7 @@
 ## Iniciar proyecto
 
 ```bash
-streamlit run app.py
+streamlit run app.py --server.port 80
 ```
 
 ## Instalar dependencias
