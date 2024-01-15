@@ -15,7 +15,13 @@ def showCharts(file):
 
     st.write(df.loc[:, ['Productos', 'Ingreso', 'Tienda']])
     
+    tiendas = df['Tienda'].unique()
+    st.write(tiendas)
     
+    
+    
+    chart_data = pd.DataFrame(np.random.randn(20, 3), columns=["a", "b", "c"])
+    st.bar_chart(chart_data)
 
 # Add a slider to the sidebar:
 data = st.sidebar.file_uploader('Carga el archivo para empezar ')
