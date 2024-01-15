@@ -1,17 +1,32 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import datetime
 
 
 st.set_page_config(page_title="Brico's Analytics", page_icon="📊", layout="wide")
-st.title('Análisis desde la web')
     
 def showCharts(file):
+    st.title('Análisis para el '+ str(year))
     df = pd.read_csv(data)
-    st.write(df)
+    df['Fecha'] = pd.to_datetime(df['Fecha'], format='%d-%m-%Y')
+
+    df = df[df['Fecha'].dt.year == year]
+
+    st.write(df.loc[:, ['Productos', 'Ingreso', 'Tienda']])
+    
+    
 
 # Add a slider to the sidebar:
 data = st.sidebar.file_uploader('Carga el archivo para empezar ')
+year = st.sidebar.number_input('Insert a number', min_value=2019, max_value=2021, step=1)
+
+
+# year_start = st.sidebar.date_input("Selecciona la fecha de inicio", value = datetime.date(2019, 7, 6), min_value=datetime.date(2019, 1, 1)
+#                              , max_value= datetime.date(2021, 12, 31))
+# year_end = st.sidebar.date_input("Selecciona la fecha de final", value = datetime.date(2019, 7, 6), min_value=datetime.date(2019, 1, 1)
+#                              , max_value= datetime.date(2021, 12, 31))
+
 
 if data is not None:
     showCharts(data)
