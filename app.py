@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import datetime
 
-
+data = None
 st.set_page_config(page_title="Brico's Analytics", page_icon="📊", layout="wide")
     
 def showCharts(file):
@@ -11,8 +11,17 @@ def showCharts(file):
     df = pd.read_excel(data)
     
 
-# Add a slider to the sidebar:
-data = st.sidebar.file_uploader('Carga el archivo para empezar ')
+def sidebar():
+    with st.sidebar:
+        type_file = ['csv', 'excel']
+        file = st.radio('Tipo de archivo: ', type_file)
+        
+        if file == 'excel':
+            data = st.file_uploader('Carga el archivo para empezar ', type=["xlsx"])        
+        if file == 'csv' :            
+            data = st.file_uploader('Carga el archivo para empezar ', type=["csv"], accept_multiple_files=True)        
+                        
+
 
 
 # year_start = st.sidebar.date_input("Selecciona la fecha de inicio", value = datetime.date(2019, 7, 6), min_value=datetime.date(2019, 1, 1)
@@ -23,3 +32,6 @@ data = st.sidebar.file_uploader('Carga el archivo para empezar ')
 
 if data is not None:
     showCharts(data)
+    
+if __name__ == '__main__':
+    sidebar()
