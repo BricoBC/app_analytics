@@ -1,1 +1,0 @@
-Poner un selectBox para identificar si se va a subir un excel, csv o conexión a una base de datos
