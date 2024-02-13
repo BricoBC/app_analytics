@@ -19,17 +19,28 @@ def get_name_products(df,arr_ids_products, i_table_profit):
     
     return arr_product    
     
-def go_tab_representant(df, i_table_representant, i_table_sale, i_table_profit):
+def go_tab_representant(df, i_table_representant, i_table_sale, i_table_profit):    
     arr_all_representants = df[i_table_representant]['Representante'].unique()
     
     options_selected_representants = st.multiselect('Elige el/la/los representantes: ', 
                              arr_all_representants)       
     
-    for representant in options_selected_representants:        
-        st.dataframe(  df[i_table_sale][ df[i_table_sale]['Representante'] == representant ], use_container_width=True )            
+    df_show = None
+    
+    if len(options_selected_representants) == 0:
+            print('No hay nada seleccionado')
+            df_show = df[i_table_sale].head()
+    else:        
+        for representant in options_selected_representants:
+            df_show = df[i_table_sale][ df[i_table_sale]['Representante'] == representant ]
+            
+        
+    st.dataframe( df_show, use_container_width=True )            
+    
         
     
 def file_to_df(file, type_file ):    
+    print('Cargando archivos')
     df = []
     st.title('Análisis de la Tienda')    
     
@@ -48,6 +59,7 @@ def file_to_df(file, type_file ):
         return df
 
 def sidebar():
+    print('Cargando sidebar')    
     df = None
     data = None or []
     showInfo = False    
@@ -94,4 +106,5 @@ def sidebar():
         
     
 if __name__ == '__main__':    
+    print('...')
     sidebar()
