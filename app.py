@@ -11,13 +11,22 @@ def go_tab_product(df, i_table_representant, i_table_sale, i_table_profit):
     options = st.multiselect('Elige el prodcuto: ', 
                              arr_all_products)
     
+def get_name_products(df,arr_ids_products, i_table_profit):
+    arr_product = []    
+    for i in range(len(arr_ids_products)):
+        name_product = (df[i_table_profit]['Descripción'][ df[i_table_profit]['CódigoProducto'] == arr_ids_products[i]]).to_numpy()                
+        arr_product.append( name_product[0] )
     
+    return arr_product    
     
 def go_tab_representant(df, i_table_representant, i_table_sale, i_table_profit):
     arr_all_representants = df[i_table_representant]['Representante'].unique()
     
-    options = st.multiselect('Elige el/la/los representantes: ', 
-                             arr_all_representants)    
+    options_selected_representants = st.multiselect('Elige el/la/los representantes: ', 
+                             arr_all_representants)       
+    
+    for representant in options_selected_representants:        
+        st.dataframe(  df[i_table_sale][ df[i_table_sale]['Representante'] == representant ], use_container_width=True )            
         
     
 def file_to_df(file, type_file ):    
@@ -35,6 +44,7 @@ def file_to_df(file, type_file ):
         df = []
         for i in range(len(file)):
             df.append( pd.read_csv(file[i]) )            
+        
         return df
 
 def sidebar():
@@ -71,6 +81,10 @@ def sidebar():
             if len(df[i].columns) == 6 :
                 i_table_profit = i
         
+        
+        df[i_table_sale]['Producto'] =  get_name_products(df, df[i_table_sale]['CódigoProducto'].to_numpy() , i_table_profit)    
+        df[i_table_sale] = df[i_table_sale][['Fecha', 'Representante', 'Producto', 'Unidades']]
+    
         tab_representant, tab_product, = st.tabs(["Representante", "Producto"])
         with tab_representant:
             go_tab_representant(df, i_table_representant, i_table_sale, i_table_profit)
