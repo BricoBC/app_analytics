@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 import datetime
 import re
 
@@ -22,22 +23,40 @@ def get_name_products(df,arr_ids_products, i_table_profit):
 def go_tab_representant(df, i_table_representant, i_table_sale, i_table_profit):    
     arr_all_representants = df[i_table_representant]['Representante'].unique()
     
-    options_selected_representants = st.multiselect('Elige el/la/los representantes: ', 
-                             arr_all_representants)       
-    
+    option_selected_representant = st.selectbox('Lista de los representantes registrados: ', 
+                             arr_all_representants, index= None, placeholder='Elige a un representante')   
+        
     df_show = None
     
-    if len(options_selected_representants) == 0:
-            print('No hay nada seleccionado')
-            df_show = df[i_table_sale].head()
-    else:        
-        for representant in options_selected_representants:
-            df_show = df[i_table_sale][ df[i_table_sale]['Representante'] == representant ]
+    if option_selected_representant != None:        
+        col2, col1 = st.columns([3, 1])
+        df_show = df[i_table_sale][ df[i_table_sale]['Representante'] == option_selected_representant ]
+        total_sales = df[i_table_sale]['Unidades'].sum()
+        with col2:
+            st.write('Trayectoria de las ventas')
+            st.dataframe( df_show, use_container_width=True )                        
             
+        with col1:            
+            representant_total_sales = df_show['Unidades'].sum()
+            size = [total_sales, representant_total_sales]            
+            labels = ['Otras ventas', option_selected_representant]
+            
+            fig, ax = plt.subplots()
+            ax.pie(  size , labels=labels)
+            
+            st.pyplot(fig)
+            
+            
+            
+            
+            st.write(f'Vendió un total de {representant_total_sales}')
+            st.write(f'Ventas totales {total_sales}')
         
-    st.dataframe( df_show, use_container_width=True )            
+        
+    else:                    
+            df_show = df[i_table_sale].sample(n=10)
+            st.dataframe( df_show, use_container_width=True )            
     
-        
     
 def file_to_df(file, type_file ):    
     print('Cargando archivos')
