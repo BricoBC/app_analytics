@@ -7,6 +7,23 @@ import re
 
 st.set_page_config(page_title="Brico's Analytics", page_icon="📊", layout="wide")
 
+def make_barh_chart(x_values, categories, txt_xlabel, title = ''):    
+    bar_colors = list(plt.cm.tab20.colors)
+    fig, ax = plt.subplots()    
+    hbar = ax.barh(x_values, categories, color=bar_colors) 
+    ax.set_xlabel(txt_xlabel)         
+    ax.bar_label(hbar, fmt='%.0f', padding=-18)    
+    ax.legend(title=title) if title != '' else None    
+    plt.gca().tick_params(axis='x', colors='w')  # Color rojo para los ejes x
+    
+    for i, tick in enumerate(ax.get_yticklabels()):
+        tick.set_color(bar_colors[i])  #Color igual al de su barra
+
+    plt.gca().set_facecolor('none')  # Fondo transparente
+    plt.gcf().set_facecolor('none')  # Fondo transparente
+
+    return fig
+
 def go_tab_product(df, i_table_representant, i_table_sale, i_table_profit):
     arr_all_products = df[i_table_profit]['Descripción'].unique()
     options = st.multiselect('Elige el prodcuto: ', 
@@ -29,25 +46,17 @@ def go_tab_representant(df, i_table_representant, i_table_sale, i_table_profit):
     df_show = None
     
     if option_selected_representant != None:        
-        col2, col1 = st.columns([3, 1])
+        col_left, col_rigth = st.columns([3, 1])
         df_show = df[i_table_sale][ df[i_table_sale]['Representante'] == option_selected_representant ]
         total_sales = df[i_table_sale]['Unidades'].sum()
-        with col2:
-            st.write('Trayectoria de las ventas')
-            st.dataframe( df_show, use_container_width=True )                        
+        with col_left:
+            products_sales = df_show.groupby(["Producto"])['Unidades'].sum().reset_index()
+            st.pyplot( make_barh_chart(products_sales['Producto'].values, products_sales['Unidades'].values, 'Unidades' ))
             
-        with col1:            
+        with col_rigth:         
             representant_total_sales = df_show['Unidades'].sum()
             size = [total_sales, representant_total_sales]            
             labels = ['Otras ventas', option_selected_representant]
-            
-            fig, ax = plt.subplots()
-            ax.pie(  size , labels=labels)
-            
-            st.pyplot(fig)
-            
-            
-            
             
             st.write(f'Vendió un total de {representant_total_sales}')
             st.write(f'Ventas totales {total_sales}')
