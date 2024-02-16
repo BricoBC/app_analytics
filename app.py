@@ -74,6 +74,7 @@ def go_tab_representant(df, i_table_representant, i_table_sale, i_table_profit):
         col_left, col_rigth = st.columns([3, 1])
         df_show = df[i_table_sale][ df[i_table_sale]['Representante'] == option_selected_representant ]
         total_sales = df[i_table_sale]['Unidades'].sum()
+        total_profit = df[i_table_sale]['Ganancia total'].sum()
         with col_left:
             tab_sales, tab_profit, = st.tabs(["Unidades vendidas", "Ganancias"])
             with tab_sales:        
@@ -92,7 +93,7 @@ def go_tab_representant(df, i_table_representant, i_table_sale, i_table_profit):
             labels = ['Otras ventas', option_selected_representant]
             
             st.write(f'Vendió un total de {representant_total_sales} unidades')
-            st.write(f'Ganancias: ')
+            st.write(f'Ganancias: {total_profit:,.2f}')
             st.write(f'Ventas totales {total_sales:,}')
         
         
