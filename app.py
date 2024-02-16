@@ -7,13 +7,12 @@ import re
 
 st.set_page_config(page_title="Brico's Analytics", page_icon="📊", layout="wide")
 
-def make_barh_chart(x_values, categories, txt_xlabel, title = ''):    
+def make_barh_chart(x_values, categories, txt_xlabel):    
     bar_colors = list(plt.cm.tab20.colors)
     fig, ax = plt.subplots()    
     hbar = ax.barh(x_values, categories, color=bar_colors) 
-    ax.set_xlabel(txt_xlabel)         
-    ax.bar_label(hbar, fmt='%.0f', padding=-18)    
-    ax.legend(title=title) if title != '' else None    
+    ax.set_xlabel(txt_xlabel, color='w')         
+    ax.bar_label(hbar, fmt='%.0f', padding=-18)        
     plt.gca().tick_params(axis='x', colors='w')  # Color rojo para los ejes x
     
     for i, tick in enumerate(ax.get_yticklabels()):
@@ -50,16 +49,18 @@ def go_tab_representant(df, i_table_representant, i_table_sale, i_table_profit):
         df_show = df[i_table_sale][ df[i_table_sale]['Representante'] == option_selected_representant ]
         total_sales = df[i_table_sale]['Unidades'].sum()
         with col_left:
-            products_sales = df_show.groupby(["Producto"])['Unidades'].sum().reset_index()
-            st.pyplot( make_barh_chart(products_sales['Producto'].values, products_sales['Unidades'].values, 'Unidades' ))
-            
+            products_sales = df_show.groupby(["Producto"])['Unidades'].sum().reset_index().sort_values(by='Unidades', ascending=False)
+            graph = make_barh_chart(products_sales['Producto'].values, products_sales['Unidades'].values, 'Unidades vendidas')
+            st.pyplot( graph )
+                        
         with col_rigth:         
             representant_total_sales = df_show['Unidades'].sum()
             size = [total_sales, representant_total_sales]            
             labels = ['Otras ventas', option_selected_representant]
             
-            st.write(f'Vendió un total de {representant_total_sales}')
-            st.write(f'Ventas totales {total_sales}')
+            st.write(f'Vendió un total de {representant_total_sales} unidades')
+            st.write(f'Ganancias: ')
+            st.write(f'Ventas totales {total_sales:,}')
         
         
     else:                    
