@@ -5,7 +5,11 @@ import matplotlib.pyplot as plt
 import datetime
 import re
 
-st.set_page_config(page_title="Brico's Analytics", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Brico's Analytics", page_icon="📊", layout="wide", menu_items={
+         'Get Help': 'https://www.extremelycoolapp.com/help',
+         'Report a bug': "https://www.extremelycoolapp.com/bug",
+         'About': "# This is a header. This is an *extremely* cool app!"
+     })
 
 def make_barh_chart(x_values, categories, txt_xlabel):    
     bar_colors = list(plt.cm.tab20.colors)
@@ -33,8 +37,17 @@ def get_name_products(df,arr_ids_products, i_table_profit):
     for i in range(len(arr_ids_products)):
         name_product = (df[i_table_profit]['Descripción'][ df[i_table_profit]['CódigoProducto'] == arr_ids_products[i]]).to_numpy()                
         arr_product.append( name_product[0] )
-    
+        
     return arr_product    
+
+    """Devuelve la columna de las ganancias
+    """
+def get_profits_products(df, i_table_sale):
+    st.write('Sitio')
+    precio = pd.to_numeric( df[i_table_sale]['Precio de venta'].str.replace(',', '') )
+    cost = pd.to_numeric( df[i_table_sale]['Costo de venta'].str.replace(',', '') )
+    return precio - cost
+    
     
 def go_tab_representant(df, i_table_representant, i_table_sale, i_table_profit):    
     arr_all_representants = df[i_table_representant]['Representante'].unique()
@@ -49,9 +62,16 @@ def go_tab_representant(df, i_table_representant, i_table_sale, i_table_profit):
         df_show = df[i_table_sale][ df[i_table_sale]['Representante'] == option_selected_representant ]
         total_sales = df[i_table_sale]['Unidades'].sum()
         with col_left:
-            products_sales = df_show.groupby(["Producto"])['Unidades'].sum().reset_index().sort_values(by='Unidades', ascending=False)
-            graph = make_barh_chart(products_sales['Producto'].values, products_sales['Unidades'].values, 'Unidades vendidas')
-            st.pyplot( graph )
+            tab_sales, tab_profit, = st.tabs(["Unidades vendidas", "Ganancias"])
+            with tab_sales:        
+                products_sales = df_show.groupby(["Producto"])['Unidades'].sum().reset_index().sort_values(by='Unidades', ascending=False)
+                graph = make_barh_chart(products_sales['Producto'].values, products_sales['Unidades'].values, 'Unidades vendidas')
+                st.pyplot( graph )
+            with tab_profit:
+                st.write('Ganancias')
+                st.write(df_show)
+                
+                
                         
         with col_rigth:         
             representant_total_sales = df_show['Unidades'].sum()
@@ -111,7 +131,6 @@ def sidebar():
     i_table_representant, i_table_sale, i_table_profit = -1,-1,-1
     if showInfo:
         df = file_to_df(data, type_file)                
-        st.write(df)
         for i in range(len(df)):
             if len(df[i].columns) == 3 :
                 i_table_representant = i
@@ -125,7 +144,10 @@ def sidebar():
         
         df[i_table_sale]['Producto'] =  get_name_products(df, df[i_table_sale]['CódigoProducto'].to_numpy() , i_table_profit)    
         df[i_table_sale] = df[i_table_sale][['Fecha', 'Representante', 'Producto', 'Unidades']]
+        
+        df[i_table_profit]['Ganancias'] = get_profits_products(df, i_table_profit)
     
+        st.write(df)
         tab_representant, tab_product, = st.tabs(["Representante", "Producto"])
         with tab_representant:
             go_tab_representant(df, i_table_representant, i_table_sale, i_table_profit)
