@@ -40,9 +40,22 @@ def get_name_products(df,arr_ids_products, i_table_profit):
         
     return arr_product    
 
-    """Devuelve la columna de las ganancias
+def get_profits_for_product(df, i_table_sale, i_table_profit):
+    """_Devuelve la columna de las ganancias por producto_
+
+    Args:
+        df (_DataFrame_): _El dataframe de las ventas_
+        i_table_sale (_Int_): _El indice de la tabla de ventas_
     """
+    df1 = df[i_table_sale]
+    df2 = df[i_table_profit][['Descripción', 'Ganancias']]
+    df1=pd.merge(df1, df2,left_on='Producto', right_on='Descripción')
+    df1['Ganancias'] = df1['Ganancias'] * df1['Unidades']
+    return df1['Ganancias']
+    
 def get_profits_products(df, i_table_sale):
+    """Devuelve la columna de las ganancias en la tabla de ventas
+    """
     st.write('Sitio')
     precio = pd.to_numeric( df[i_table_sale]['Precio de venta'].str.replace(',', '') )
     cost = pd.to_numeric( df[i_table_sale]['Costo de venta'].str.replace(',', '') )
@@ -143,9 +156,9 @@ def sidebar():
         
         
         df[i_table_sale]['Producto'] =  get_name_products(df, df[i_table_sale]['CódigoProducto'].to_numpy() , i_table_profit)    
-        df[i_table_sale] = df[i_table_sale][['Fecha', 'Representante', 'Producto', 'Unidades']]
-        
+        df[i_table_sale] = df[i_table_sale][['Fecha', 'Representante', 'Producto', 'Unidades']]        
         df[i_table_profit]['Ganancias'] = get_profits_products(df, i_table_profit)
+        df[i_table_sale]['Ganancia total'] =  get_profits_for_product(df, i_table_sale, i_table_profit)
     
         st.write(df)
         tab_representant, tab_product, = st.tabs(["Representante", "Producto"])
