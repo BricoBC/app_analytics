@@ -33,9 +33,8 @@ def make_barh_chart(x_values, categories, txt_xlabel ):
 
 def go_tab_product(df, i_table_representant, i_table_sale, i_table_profit):
     arr_all_products = df[i_table_profit]['Descripción'].unique()
-    options = st.multiselect('Elige el prodcuto: ', 
-                             arr_all_products)
-    st.write(options)
+    options = st.multiselect('Elige el producto: ', 
+                             arr_all_products)    
     df_show = df[i_table_profit]
     filtered_df = df_show
     for i, option in enumerate(options):
@@ -43,7 +42,8 @@ def go_tab_product(df, i_table_representant, i_table_sale, i_table_profit):
             filtered_df = df_show[df_show['Descripción'] == option]
         else:            
             filtered_df = pd.concat([filtered_df, df_show[df_show['Descripción'] == option]])
-    st.write( filtered_df )
+    filtered_df['Almacen'] = filtered_df['Almacen'] - filtered_df['Vendidos']
+    st.write( filtered_df[['CódigoProducto', 'Descripción', 'Precio de venta', 'Almacen']] )
     
 def get_name_products(df,arr_ids_products, i_table_profit):
     arr_product = []    
@@ -67,7 +67,7 @@ def get_profits_for_product(df, i_table_sale, i_table_profit):
     return df1[['Fecha', 'Representante', 'Producto', 'Unidades','Ganancia total']]
     
 def get_profits_products(df, i_table_sale):
-    """Devuelve la columna de las ganancias en la tabla de ventas
+    """Devuelve la tabla de las ganancias en la tabla de ventas
     """    
     precio = pd.to_numeric( df[i_table_sale]['Precio de venta'].str.replace(',', '') )
     cost = pd.to_numeric( df[i_table_sale]['Costo de venta'].str.replace(',', '') )
@@ -103,7 +103,7 @@ def go_tab_representant(df, i_table_representant, i_table_sale, i_table_profit):
             
             labels = ['Otras ventas', option_selected_representant]            
             st.write(f'Vendió un total de {representant_total_sales} unidades')
-            st.write(f'Ganancias: ${total_profit:,.2f}')            
+            st.write(f'Ganancias: ${total_profit:,.2f}')
         
         
     else:                    
@@ -170,7 +170,7 @@ def sidebar():
         df[i_table_profit]['Ganancias'] = get_profits_products(df, i_table_profit)
         df[i_table_sale] =  get_profits_for_product(df, i_table_sale, i_table_profit)
     
-        st.write(df)
+        
         tab_representant, tab_product, = st.tabs(["Representante", "Producto"])
         with tab_representant:
             go_tab_representant(df, i_table_representant, i_table_sale, i_table_profit)
