@@ -31,6 +31,15 @@ def go_tab_product(df, i_table_representant, i_table_sale, i_table_profit):
     arr_all_products = df[i_table_profit]['Descripción'].unique()
     options = st.multiselect('Elige el prodcuto: ', 
                              arr_all_products)
+    st.write(options)
+    df_show = df[i_table_profit]
+    
+    for i, option in enumerate(options):
+        if i == 0:            
+            filtered_df = df_show[df_show['Descripción'] == option]
+        else:            
+            filtered_df = pd.concat([filtered_df, df_show[df_show['Descripción'] == option]])
+    st.write( filtered_df )
     
 def get_name_products(df,arr_ids_products, i_table_profit):
     arr_product = []    
@@ -55,8 +64,7 @@ def get_profits_for_product(df, i_table_sale, i_table_profit):
     
 def get_profits_products(df, i_table_sale):
     """Devuelve la columna de las ganancias en la tabla de ventas
-    """
-    st.write('Sitio')
+    """    
     precio = pd.to_numeric( df[i_table_sale]['Precio de venta'].str.replace(',', '') )
     cost = pd.to_numeric( df[i_table_sale]['Costo de venta'].str.replace(',', '') )
     return precio - cost
@@ -83,9 +91,7 @@ def go_tab_representant(df, i_table_representant, i_table_sale, i_table_profit):
                 st.pyplot( graph )
             with tab_profit:
                 st.write('Ganancias')
-                st.write(df_show)
-                
-                
+                st.write(df_show)                
                         
         with col_rigth:         
             representant_total_sales = df_show['Unidades'].sum()
