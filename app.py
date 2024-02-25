@@ -11,16 +11,20 @@ st.set_page_config(page_title="Brico's Analytics", page_icon="📊", layout="wid
          'About': "# This is a header. This is an *extremely* cool app!"
      })
 
-def make_barh_chart(x_values, categories, txt_xlabel):    
+def make_barh_chart(x_values, categories, txt_xlabel ):    
     bar_colors = list(plt.cm.tab20.colors)
     fig, ax = plt.subplots()    
     hbar = ax.barh(x_values, categories, color=bar_colors) 
     ax.set_xlabel(txt_xlabel, color='w')         
-    ax.bar_label(hbar, fmt='%.0f', padding=-18)        
+    
+    if categories.max() > 1000 :
+        ax.bar_label(hbar, fmt='{:,.0f}'.format, padding= 5, color='w')        
+    else:
+        ax.bar_label(hbar, fmt='{:,.0f}'.format, padding = -20 , color='k')
     plt.gca().tick_params(axis='x', colors='w')  # Color rojo para los ejes x
     
     for i, tick in enumerate(ax.get_yticklabels()):
-        tick.set_color(bar_colors[i])  #Color igual al de su barra
+        tick.set_color(bar_colors[i])  #Color igual al de su barra        
 
     plt.gca().set_facecolor('none')  # Fondo transparente
     plt.gcf().set_facecolor('none')  # Fondo transparente
@@ -81,7 +85,7 @@ def go_tab_representant(df, i_table_representant, i_table_sale, i_table_profit):
     if option_selected_representant != None:        
         col_left, col_rigth = st.columns([3, 1])
         df_show = df[i_table_sale][ df[i_table_sale]['Representante'] == option_selected_representant ]
-        total_sales = df[i_table_sale]['Unidades'].sum()
+        
         total_profit = df[i_table_sale]['Ganancia total'].sum()
         with col_left:
             tab_sales, tab_profit, = st.tabs(["Unidades vendidas", "Ganancias"])
@@ -89,18 +93,17 @@ def go_tab_representant(df, i_table_representant, i_table_sale, i_table_profit):
                 products_sales = df_show.groupby(["Producto"])['Unidades'].sum().reset_index().sort_values(by='Unidades', ascending=False)
                 graph = make_barh_chart(products_sales['Producto'].values, products_sales['Unidades'].values, 'Unidades vendidas')
                 st.pyplot( graph )
-            with tab_profit:
-                st.write('Ganancias')
-                st.write(df_show)                
+            with tab_profit:                                
+                products_profict = df_show.groupby(["Producto"])['Ganancia total'].sum().reset_index().sort_values(by='Ganancia total', ascending=False)                
+                graph = make_barh_chart(products_profict['Producto'].values, products_profict['Ganancia total'].values, 'Ganancias totales')
+                st.pyplot( graph )                
                         
         with col_rigth:         
             representant_total_sales = df_show['Unidades'].sum()
-            size = [total_sales, representant_total_sales]            
-            labels = ['Otras ventas', option_selected_representant]
             
+            labels = ['Otras ventas', option_selected_representant]            
             st.write(f'Vendió un total de {representant_total_sales} unidades')
-            st.write(f'Ganancias: {total_profit:,.2f}')
-            st.write(f'Ventas totales {total_sales:,}')
+            st.write(f'Ganancias: ${total_profit:,.2f}')            
         
         
     else:                    
