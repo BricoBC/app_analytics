@@ -33,7 +33,7 @@ def go_tab_product(df, i_table_representant, i_table_sale, i_table_profit):
                              arr_all_products)
     st.write(options)
     df_show = df[i_table_profit]
-    
+    filtered_df = df_show
     for i, option in enumerate(options):
         if i == 0:            
             filtered_df = df_show[df_show['Descripción'] == option]
@@ -58,9 +58,9 @@ def get_profits_for_product(df, i_table_sale, i_table_profit):
     """
     df1 = df[i_table_sale]
     df2 = df[i_table_profit][['Descripción', 'Ganancias']]
-    df1=pd.merge(df1, df2,left_on='Producto', right_on='Descripción')
-    df1['Ganancias'] = df1['Ganancias'] * df1['Unidades']
-    return df1['Ganancias']
+    df1 = pd.merge(df1, df2,left_on='Producto', right_on='Descripción', how='outer')
+    df1['Ganancia total'] = df1['Ganancias'] * df1['Unidades']
+    return df1[['Fecha', 'Representante', 'Producto', 'Unidades','Ganancia total']]
     
 def get_profits_products(df, i_table_sale):
     """Devuelve la columna de las ganancias en la tabla de ventas
@@ -165,7 +165,7 @@ def sidebar():
         df[i_table_sale]['Producto'] =  get_name_products(df, df[i_table_sale]['CódigoProducto'].to_numpy() , i_table_profit)    
         df[i_table_sale] = df[i_table_sale][['Fecha', 'Representante', 'Producto', 'Unidades']]        
         df[i_table_profit]['Ganancias'] = get_profits_products(df, i_table_profit)
-        df[i_table_sale]['Ganancia total'] =  get_profits_for_product(df, i_table_sale, i_table_profit)
+        df[i_table_sale] =  get_profits_for_product(df, i_table_sale, i_table_profit)
     
         st.write(df)
         tab_representant, tab_product, = st.tabs(["Representante", "Producto"])
